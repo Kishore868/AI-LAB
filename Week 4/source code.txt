@@ -1,0 +1,65 @@
+import random
+
+# Heuristic function: counts number of attacking pairs
+def heuristic(state):
+    count = 0
+    for i in range(4):
+        for j in range(i+1, 4):
+            # same column or same diagonal
+            if state[i] == state[j] or abs(state[i]-state[j]) == abs(i-j):
+                count += 1
+    return count
+
+# Generate a random initial state
+def random_state():
+    return [random.randint(0, 3) for _ in range(4)]
+
+# Hill Climbing algorithm
+def hill_climb_4_queens():
+    current = random_state()
+    
+    while True:
+        h_current = heuristic(current)
+        
+        if h_current == 0:
+            print("Solution found:", current)
+            print_board(current)
+            return current
+        
+        neighbors = []
+        # Generate all neighbors by moving one queen in each row
+        for row in range(4):
+            for col in range(4):
+                if col != current[row]:
+                    neighbor = current.copy()
+                    neighbor[row] = col
+                    neighbors.append(neighbor)
+        
+        # Select the best neighbor
+        best_neighbor = min(neighbors, key=heuristic)
+        h_best = heuristic(best_neighbor)
+        
+        # If no improvement, stop
+        if h_best >= h_current:
+            print("Stuck in local maximum. Current state:", current)
+            print_board(current)
+            return None
+        
+        # Move to the best neighbor
+        current = best_neighbor
+
+# Optional: Print the board visually
+def print_board(state):
+    print("\nBoard:")
+    for row in range(4):
+        line = ""
+        for col in range(4):
+            if col == state[row]:
+                line += " Q "
+            else:
+                line += " . "
+        print(line)
+    print()
+
+# Run the algorithm
+hill_climb_4_queens()
