@@ -1,0 +1,66 @@
+import random
+import math
+
+# Number of queens
+N = 8
+
+# Heuristic: count number of attacking pairs
+def heuristic(state):
+    count = 0
+    for i in range(N):
+        for j in range(i+1, N):
+            # same column or same diagonal
+            if state[i] == state[j] or abs(i-j) == abs(state[i]-state[j]):
+                count += 1
+    return count
+
+# Print board
+def print_board(state):
+    print("\nBoard:")
+    for row in range(N):
+        line = ""
+        for col in range(N):
+            if col == state[row]:
+                line += " Q "
+            else:
+                line += " . "
+        print(line)
+    print()
+
+# Simulated Annealing for 8-Queens
+def simulated_annealing_8_queens():
+    # Step 0: random initial state
+    current = [random.randint(0, N-1) for _ in range(N)]
+    T = 100.0      # initial temperature
+    alpha = 0.95   # cooling rate
+    min_T = 0.01   # minimum temperature to stop
+
+    while T > min_T:
+        h_current = heuristic(current)
+        if h_current == 0:
+            print("Solution found!")
+            print_board(current)
+            return current
+
+        # Pick a random neighbor by moving one queen
+        neighbor = current.copy()
+        row = random.randint(0, N-1)
+        col = random.choice([c for c in range(N) if c != neighbor[row]])
+        neighbor[row] = col
+
+        # Compute delta heuristic
+        delta_h = heuristic(neighbor) - h_current
+
+        # Decide to accept neighbor
+        if delta_h < 0 or random.random() < math.exp(-delta_h / T):
+            current = neighbor
+
+        # Cool down
+        T *= alpha
+
+    print("No solution found. Final state:")
+    print_board(current)
+    return None
+
+# Run the algorithm
+simulated_annealing_8_queens()
